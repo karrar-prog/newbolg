@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Controllers;
 
+use App\models\BlockedUser;
 use App\models\Comments;
 use App\models\Post;
 use App\models\Rates;
