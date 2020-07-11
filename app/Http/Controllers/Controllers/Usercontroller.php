@@ -74,6 +74,43 @@ class Usercontroller extends Controller
         }
     }
 
+    public function registerbyapple(Request $request)
+    {
+        $body = $request->all();
+        $id = $body['id'];
+        $userFromApple = User::find($id);
+        if ($userFromApple) {
+            return response()->json(['message' => 'already...']);
+
+        } else {
+            $data = new User;
+            $temp = $data->id = $request->input('id');
+            $data->name = $request->input('name');
+            $data->email = $request->input('email');
+            $data->picture = $request->input('picture');
+            $body = User::where('email', $data->email)->first();
+            if ($body) {
+                $Id = $body['id'];
+                $body = User::where('email', $data->email)->
+                update(['id' => $temp]);
+                $body = User::where('email', $data->email)->
+                update(['name' => $data->name]);
+                $body = User::where('email', $data->email)->
+                update(['picture' => $data->picture]);
+                $body1 = Post::where('user_id', $Id)->update(['user_id' => $temp]);
+                $body2 = Comments::where('user_id', $Id)->update(['user_id' => $temp]);
+                $body3 = Rates::where('user_id', $Id)->update(['user_id' => $temp]);
+                $body = User::where('email', $data->email)->first();
+                return response()->json($body);
+            } else {
+                $data->save();
+                $data->id = $temp;
+                return response()->json($data);
+            }
+
+        }
+    }
+
     public function login(Request $request)
     {
         $body = $request->all();
@@ -209,15 +246,15 @@ class Usercontroller extends Controller
         else
             return response()->json(['message' => 'NOT FOUND']);
     }
+
     public function userpagination2(Request $request)
-    {  $sortby=$request->input('sortby');
+    {
+        $sortby = $request->input('sortby');
         $body = $request->all();
         $id = $body['my_id'];
 
 
-
-
-        if($sortby==0) {
+        if ($sortby == 0) {
 
             $SQL = "SELECT * 
                 FROM users 
@@ -227,8 +264,7 @@ class Usercontroller extends Controller
             $data = DB::select($SQL, [$id]);
             return response()->json($data);
 
-        }
-        elseif ($sortby==1){
+        } elseif ($sortby == 1) {
 
             $SQL = "SELECT * 
                 FROM users 

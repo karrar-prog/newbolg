@@ -289,13 +289,33 @@ class Postcontroller extends Controller
                     return response()->json(['message' => 'NOT FOUND']);
     }
     public function getSearchResults(Request $request)
-    {   $data = $request->get('data');
+    {
+        $data = $request->get('data');
         $st=1;
         $search_post = Post::Where('title', 'like', "%{$data}%")
             ->orWhere('tags', 'like', "%{$data}%")
             ->orWhere('content', 'like', "%{$data}%")
             ->with(['user','cat'])
             ->withCount('cmd')
+            ->paginate(5);
+
+              return response()->json([ 'data' => $search_post ]);
+
+    }
+
+  public function getSearchResults2(Request $request)
+    {
+        $data = $request->get('data');
+        $st=1;
+        $my_id=$request->input('my_id');
+
+        $id_list = BlockedUser::where('user_id' , $my_id)->pluck('blocked_user_id');
+
+        $search_post = Post::Where('title', 'like', "%{$data}%")
+            ->orWhere('tags', 'like', "%{$data}%")
+            ->orWhere('content', 'like', "%{$data}%")
+            ->with(['user','cat'])
+            ->withCount('cmd')->whereNotIn('user_id', $id_list)
             ->paginate(5);
 
               return response()->json([ 'data' => $search_post ]);
