@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Controllers ;
+use App\models\BlockedUser;
 use App\models\User;
 use Carbon\Carbon;
 use http\Client;
@@ -33,16 +34,17 @@ class Postcontroller extends Controller
         $cat=$request->input('cat');
         $sortby=$request->input('sortby');
         $my_id=$request->input('my_id');
+
+       $id_list = BlockedUser::where('user_id' , $my_id)->pluck('blocked_user_id');
+
         if($cat==0) {
 
             if ($sortby == 0)// get all posts by default
             {
 
-                $data = Post::where('status',$st=1)->whereNotIn('user_id',function($query) {
-
-                    $query->select('user_blocked_id')->from('blocked_user')->where('user_id' , $my_id);})
+                $data = Post::where('status',$st=1)
                     ->with(['user', 'cat'])->
-                    withCount('cmd')->
+                    withCount('cmd')->whereNotIn('user_id', $id_list)->
                     paginate(10);
                 return response()->json($data);
             } elseif ($sortby == 1)//get posts depend on views
@@ -50,7 +52,7 @@ class Postcontroller extends Controller
                 $data = Post::where('status',$st=1)->
                 with(['user', 'cat'])->
                 orderBy('views', 'desc')
-                    ->withCount('cmd')->
+                    ->withCount('cmd')->whereNotIn('user_id', $id_list)->
                     paginate(10);
                 return response()->json($data);
 
@@ -58,7 +60,7 @@ class Postcontroller extends Controller
             {
                 $data = Post::where('status',$st=1)->
                 with(['user', 'cat'])->
-                withCount('cmd')->
+                withCount('cmd')->whereNotIn('user_id', $id_list)->
                 latest()->paginate(10);
                 return response()->json($data);
 
@@ -71,7 +73,7 @@ class Postcontroller extends Controller
             {
                 $data = Post::where('status',$st=1)->
                 with(['user', 'cat'])->
-                withCount('cmd')->paginate(10);
+                withCount('cmd')->whereNotIn('user_id', $id_list)->paginate(10);
                 return response()->json($data);
             }
 
@@ -81,7 +83,7 @@ class Postcontroller extends Controller
                 with(['user', 'cat'])->
                 where('category_id',$id)->
                 orderBy('views', 'desc')->
-                withCount('cmd')->
+                withCount('cmd')->whereNotIn('user_id', $id_list)->
                 paginate(10);
                 return response()->json($data);
 
@@ -91,7 +93,7 @@ class Postcontroller extends Controller
                 $data = Post::where('status',$st=1)->
                 with(['user', 'cat'])->
                 where('category_id',$id)->
-                withCount('cmd')->
+                withCount('cmd')->whereNotIn('user_id', $id_list)->
                 latest()->paginate(10);
                 return response()->json($data);
 
