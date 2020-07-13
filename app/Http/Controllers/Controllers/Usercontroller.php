@@ -259,9 +259,7 @@ class Usercontroller extends Controller
             $SQL = "SELECT * 
                 FROM users 
                 WHERE id not in (SELECT blocked_user_id from blocked_user where user_id = ?)";
-
-
-            $data = DB::select($SQL, [$id]);
+            $data = DB::select($SQL, [$id])->paginate(10);
             return response()->json($data);
 
         } elseif ($sortby == 1) {
@@ -270,10 +268,14 @@ class Usercontroller extends Controller
                 FROM users 
                 WHERE id not in (SELECT blocked_user_id from blocked_user where user_id = ?) order by points desc ";
 
-            $data = DB::select($SQL, [$id]);
+            $data = DB::select($SQL, [$id])->paginate(10);
             return response()->json($data);
 
         }
+
+
+
+
     }
 
     public function block_user(Request $request)
