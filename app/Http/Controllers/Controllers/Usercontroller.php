@@ -9,9 +9,11 @@ use App\models\Rates;
 use App\models\Student;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\DB;
 use phpDocumentor\Reflection\Types\String_;
 use App\models\User;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class Usercontroller extends Controller
 {
@@ -182,6 +184,46 @@ class Usercontroller extends Controller
 
 
     }
+    public function userpagination2(Request $request)
+    {
+        $sortby = $request->input('sortby');
+        $body = $request->all();
+        $id = $body['my_id'];
+
+
+        if ($sortby == 0) {
+
+            $SQL = "SELECT * 
+                FROM users 
+                WHERE id not in (SELECT blocked_user_id from blocked_user where user_id = ?)";
+            $data =$this->paginateArray( DB::select($SQL, [$id]));
+            return response()->json($data);
+
+        } elseif ($sortby == 1) {
+
+            $SQL = "SELECT * 
+                FROM users 
+                WHERE id not in (SELECT blocked_user_id from blocked_user where user_id = ?) order by points desc ";
+
+            $data = $this->paginateArray(DB::select($SQL, [$id]));
+            return response()->json($data);
+
+        }
+
+
+
+
+    }
+    public function paginateArray($data, $perPage = 15)
+    {
+        $page = Paginator::resolveCurrentPage();
+        $total = count($data);
+        $results = array_slice($data, ($page - 1) * $perPage, $perPage);
+
+        return new LengthAwarePaginator($results, $total, $perPage, $page, [
+            'path' => Paginator::resolveCurrentPath(),
+        ]);
+    }
 
     public function userpagination(Request $request)
     {
@@ -247,36 +289,6 @@ class Usercontroller extends Controller
             return response()->json(['message' => 'NOT FOUND']);
     }
 
-    public function userpagination2(Request $request)
-    {
-        $sortby = $request->input('sortby');
-        $body = $request->all();
-        $id = $body['my_id'];
-
-
-        if ($sortby == 0) {
-
-            $SQL = "SELECT * 
-                FROM users 
-                WHERE id not in (SELECT blocked_user_id from blocked_user where user_id = ?)";
-            $data = DB::select($SQL, [$id])->paginate(10);
-            return response()->json($data);
-
-        } elseif ($sortby == 1) {
-
-            $SQL = "SELECT * 
-                FROM users 
-                WHERE id not in (SELECT blocked_user_id from blocked_user where user_id = ?) order by points desc ";
-
-            $data = DB::select($SQL, [$id])->paginate(10);
-            return response()->json($data);
-
-        }
-
-
-
-
-    }
 
     public function block_user(Request $request)
     {
