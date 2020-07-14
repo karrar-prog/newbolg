@@ -299,7 +299,7 @@ class Postcontroller extends Controller
             ->withCount('cmd')
             ->paginate(5);
 
-              return response()->json([ 'data' => $search_post ]);
+              return response()->json($search_post);
 
     }
 
@@ -318,7 +318,7 @@ class Postcontroller extends Controller
             ->withCount('cmd')->whereNotIn('user_id', $id_list)
             ->paginate(5);
 
-              return response()->json([ 'data' => $search_post ]);
+              return response()->json( $search_post);
 
     }
 

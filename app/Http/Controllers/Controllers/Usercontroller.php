@@ -193,19 +193,40 @@ class Usercontroller extends Controller
 
         if ($sortby == 0) {
 
-            $SQL = "SELECT * 
-                FROM users 
-                WHERE id not in (SELECT blocked_user_id from blocked_user where user_id = ?)";
-            $data =$this->paginateArray( DB::select($SQL, [$id]));
+//            $SQL = "SELECT *
+//                FROM users
+//                WHERE id not in (SELECT blocked_user_id from blocked_user where user_id = ?)";
+//            $data =$this->paginateArray( DB::select($SQL, [$id]));
+//            return response()->json($data);
+
+            $my_id=$request->input('my_id');
+
+            $id_list = BlockedUser::where('user_id' , $my_id)->pluck('blocked_user_id');
+
+
+            $data = User::whereNotIn('id', $id_list)->paginate(10);
             return response()->json($data);
+
 
         } elseif ($sortby == 1) {
 
-            $SQL = "SELECT * 
-                FROM users 
-                WHERE id not in (SELECT blocked_user_id from blocked_user where user_id = ?) order by points desc ";
+//            $SQL = "SELECT *
+//                FROM users
+//                WHERE id not in (SELECT blocked_user_id from blocked_user where user_id = ?) order by points desc ";
 
-            $data = $this->paginateArray(DB::select($SQL, [$id]));
+            $my_id=$request->input('my_id');
+
+            $id_list = BlockedUser::where('user_id' , $my_id)->pluck('blocked_user_id');
+
+
+            $data = User::whereNotIn('id', $id_list)->orderBy('points','desc')->paginate(10);
+
+
+
+
+
+//            $data = $this->paginateArray(DB::select($SQL, [$id]));
+
             return response()->json($data);
 
         }
